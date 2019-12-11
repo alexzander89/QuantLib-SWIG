@@ -308,6 +308,32 @@ class LocalVolSurface : public LocalVolTermStructure {
                     Real underlying);
 };
 
+%{
+using QuantLib::SviFxBlackVolatilitySurface;
+%}
+
+%shared_ptr(SviFxBlackVolatilitySurface);
+class SviFxBlackVolatilitySurface: public BlackVolTermStructure {
+  public:
+    SviFxBlackVolatilitySurface(
+          const std::vector<std::vector<Handle<QuantLib::DeltaVolQuote> > >& deltaVolMatrix,
+          const Handle<Quote>& fxSpot,
+          const std::vector<Period>& optionTenors,
+          const Handle<YieldTermStructure>& domesticTermStructure,
+          const Handle<YieldTermStructure>& foreignTermStructure,
+          Natural fxFixingDays,
+          const Calendar& advanceCalendar,
+          const Calendar& adjustCalendar = QuantLib::NullCalendar(),
+          const Calendar& fxFixingCalendar = QuantLib::WeekendsOnly(),
+          BusinessDayConvention bdc = Following,
+          const DayCounter& dc = QuantLib::Actual365Fixed());
+
+    std::vector<Date> optionDates() const;
+    std::vector<Period> optionTenors() const;
+    std::vector<std::vector<Handle<QuantLib::DeltaVolQuote> > > deltaVolMatrix() const;
+    DiscountFactor foreignDiscount(Time t) const;
+    DiscountFactor domesticDiscount(Time t) const;
+};
 
 // constant caplet constant term structure
 %{
@@ -450,7 +476,7 @@ class SwaptionVolatilityMatrix : public SwaptionVolatilityDiscrete {
                                                 flatExtrapolation, type, shifts);
         }
     }
-    
+
     std::pair<Size,Size> locate(const Date& optionDate,
                                 const Period& swapTenor) const;
     std::pair<Size,Size> locate(Time optionTime,
@@ -589,7 +615,7 @@ class InterpolatedSmileSection : public SmileSection {
                const std::vector<Rate>& strikes,
                const std::vector<Handle<Quote> >& stdDevHandles,
                const Handle<Quote>& atmLevel,
-               const DayCounter& dc = Actual365Fixed(),               
+               const DayCounter& dc = Actual365Fixed(),
                const Interpolator& interpolator = Interpolator(),
                const Date& referenceDate = Date(),
                const VolatilityType type = ShiftedLognormal,
@@ -675,13 +701,13 @@ template <class Evaluation>
 class ZabrSmileSection : public SmileSection {
   public:
     ZabrSmileSection(
-               Time timeToExpiry, 
+               Time timeToExpiry,
                Rate forward,
                const std::vector<Real> &zabrParameters,
                const std::vector<Real> &moneyness = std::vector<Real>(),
                const Size fdRefinement = 5);
     ZabrSmileSection(
-               const Date &d, 
+               const Date &d,
                Rate forward,
                const std::vector<Real> &zabrParameters,
                const DayCounter &dc = Actual365Fixed(),
@@ -755,12 +781,12 @@ export_zabrinterpolatedsmilesection_curve(ZabrFullFdInterpolatedSmileSection, Za
 class NoArbSabrSmileSection : public SmileSection {
   public:
     NoArbSabrSmileSection(
-               Time timeToExpiry, 
+               Time timeToExpiry,
                Rate forward,
                const std::vector<Real> &sabrParameters,
                const Real shift = 0.0);
     NoArbSabrSmileSection(
-               const Date &d, 
+               const Date &d,
                Rate forward,
                const std::vector<Real> &sabrParameters,
                const DayCounter &dc = Actual365Fixed(),
@@ -805,6 +831,93 @@ class NoArbSabrInterpolatedSmileSection : public SmileSection {
     Real rmsError() const;
     Real maxError() const;
     EndCriteria::Type endCriteria() const;
+};
+
+%{
+using QuantLib::SviInterpolatedSmileSection;
+%}
+
+%shared_ptr(SviInterpolatedSmileSection)
+class SviInterpolatedSmileSection : public SmileSection {
+  public:
+    SviInterpolatedSmileSection(
+           const Date &optionDate,
+           const Handle<Quote> &forward,
+           const std::vector<Real> &strikes,
+           bool hasFloatingStrikes,
+           const Handle<Quote> &atmVolatility,
+           const std::vector<Handle<Quote> > &volHandles,
+           Real a = Null<Real>(), Real b = Null<Real>(),
+           Real sigma = Null<Real>(), Real rho = Null<Real>(),
+           Real m = Null<Real>(), bool aIsFixed = false,
+           bool bIsFixed = false, bool sigmaIsFixed = false,
+           bool rhoIsFixed = false, bool mIsFixed = false,
+           bool vegaWeighted = true,
+           const boost::shared_ptr<EndCriteria> &endCriteria =
+              boost::shared_ptr<EndCriteria>(),
+           const boost::shared_ptr<OptimizationMethod> &method =
+              boost::shared_ptr<OptimizationMethod>(),
+           const DayCounter &dc = Actual365Fixed());
+
+    SviInterpolatedSmileSection(
+           Time optionTime, const Handle<Quote> &forward,
+           const std::vector<Real> &strikes, bool hasFloatingStrikes,
+           const Handle<Quote> &atmVolatility,
+           const std::vector<Handle<Quote> > &volHandles,
+           Real a = Null<Real>(), Real b = Null<Real>(),
+           Real sigma = Null<Real>(), Real rho = Null<Real>(),
+           Real m = Null<Real>(), bool aIsFixed = false,
+           bool bIsFixed = false, bool sigmaIsFixed = false,
+           bool rhoIsFixed = false, bool mIsFixed = false,
+           bool vegaWeighted = true,
+           const boost::shared_ptr<EndCriteria> &endCriteria =
+              boost::shared_ptr<EndCriteria>(),
+           const boost::shared_ptr<OptimizationMethod> &method =
+              boost::shared_ptr<OptimizationMethod>(),
+           const DayCounter &dc = Actual365Fixed());
+
+    SviInterpolatedSmileSection(
+           const Date &optionDate, Rate forward,
+           const std::vector<Real> &strikes, bool hasFloatingStrikes,
+           Real atmVolatility, const std::vector<Real> &vols,
+           Real a = Null<Real>(), Real b = Null<Real>(),
+           Real sigma = Null<Real>(), Real rho = Null<Real>(),
+           Real m = Null<Real>(), bool aIsFixed = false,
+           bool bIsFixed = false, bool sigmaIsFixed = false,
+           bool rhoIsFixed = false, bool mIsFixed = false,
+           bool vegaWeighted = true,
+           const boost::shared_ptr<EndCriteria> &endCriteria =
+              boost::shared_ptr<EndCriteria>(),
+           const boost::shared_ptr<OptimizationMethod> &method =
+              boost::shared_ptr<OptimizationMethod>(),
+           const DayCounter &dc = Actual365Fixed());
+
+    SviInterpolatedSmileSection(
+           Time optionTime, Rate forward,
+           const std::vector<Real> &strikes, bool hasFloatingStrikes,
+           Real atmVolatility, const std::vector<Real> &vols,
+           Real a = Null<Real>(), Real b = Null<Real>(),
+           Real sigma = Null<Real>(), Real rho = Null<Real>(),
+           Real m = Null<Real>(), bool aIsFixed = false,
+           bool bIsFixed = false, bool sigmaIsFixed = false,
+           bool rhoIsFixed = false, bool mIsFixed = false,
+           bool vegaWeighted = true,
+           const boost::shared_ptr<EndCriteria> &endCriteria =
+              boost::shared_ptr<EndCriteria>(),
+           const boost::shared_ptr<OptimizationMethod> &method =
+              boost::shared_ptr<OptimizationMethod>(),
+           const DayCounter &dc = Actual365Fixed());
+
+    Real a() const;
+    Real b() const;
+    Real sigma() const;
+    Real rho() const;
+    Real m() const;
+    Real rmsError();
+    Real maxError();
+    EndCriteria::Type endCriteria() const;
+    std::vector<Volatility> inputVols() const;
+    std::vector<Rate> inputStrikes() const;
 };
 
 %{

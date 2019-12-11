@@ -121,7 +121,7 @@ Real bachelierBlackFormulaAssetItmProbability(
 Real bachelierBlackFormulaAssetItmProbability(
                     const boost::shared_ptr<PlainVanillaPayoff>& payoff,
                     Real forward,
-                    Real stdDev);      
+                    Real stdDev);
 
 %{
 using QuantLib::BlackDeltaCalculator;
@@ -140,8 +140,9 @@ class BlackDeltaCalculator{
     Real deltaFromStrike(Real strike) const;
     Real strikeFromDelta(Real delta) const;
     Real atmStrike(DeltaVolQuote::AtmType atmT) const;
+    void setDeltaType(DeltaVolQuote::DeltaType dt);
+    void setOptionType(Option::Type ot);
 };
 
 
 #endif
-

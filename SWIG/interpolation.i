@@ -5,7 +5,7 @@
  Copyright (C) 2003, 2004, 2008 StatPro Italia srl
  Copyright (C) 2005 Dominic Thuillier
  Copyright (C) 2018 Matthias Lungwitz
- 
+
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
 
@@ -107,6 +107,60 @@ extend_spline(LogParabolic);
 extend_spline(MonotonicParabolic);
 extend_spline(MonotonicLogParabolic);
 
+
+// SVI interpolation
+%{
+class SafeSviInterpolation {
+  public:
+    SafeSviInterpolation(const std::vector<Real>& x,
+                         const std::vector<Real>& y,
+                         Time t, const Real &forward,
+                         Real a = Null<Real>(),
+                         Real b = Null<Real>(),
+                         Real sigma = Null<Real>(),
+                         Real rho = Null<Real>(),
+                         Real m = Null<Real>(),
+                         bool aIsFixed = false,
+                         bool bIsFixed = false,
+                         bool sigmaIsFixed = false,
+                         bool rhoIsFixed = false,
+                         bool mIsFixed = false)
+    : x_(x), y_(y), f_(x_.begin(), x_.end(), y_.begin(),
+                       t, forward, a, b, sigma, rho, m,
+                       aIsFixed, bIsFixed, sigmaIsFixed,
+                       rhoIsFixed, mIsFixed, true,
+                       boost::shared_ptr<QuantLib::EndCriteria>(),
+                       boost::shared_ptr<QuantLib::OptimizationMethod>(),
+                       1E-8, false, 50) {
+        f_.update();
+    }
+    Real operator()(Real x, bool allowExtrapolation=false) {
+        return f_(x, allowExtrapolation);
+    }
+    std::vector<Real> x_, y_;
+    QuantLib::SviInterpolation f_;
+};
+%}
+
+%rename(SVIInterpolation) SafeSviInterpolation;
+class SafeSviInterpolation {
+  public:
+    SafeSviInterpolation(const std::vector<Real>& x,
+                         const std::vector<Real>& y,
+                         Time t, const Real &forward,
+                         Real a = Null<Real>(),
+                         Real b = Null<Real>(),
+                         Real sigma = Null<Real>(),
+                         Real rho = Null<Real>(),
+                         Real m = Null<Real>(),
+                         bool aIsFixed = false,
+                         bool bIsFixed = false,
+                         bool sigmaIsFixed = false,
+                         bool rhoIsFixed = false,
+                         bool mIsFixed = false);
+    Real operator()(Real x, bool allowExtrapolation=false);
+};
+
 %{
 // safe versions which copy their arguments
 template <class I>
@@ -202,23 +256,23 @@ class RichardsonExtrapolation {
   public:
     Real operator()(Real t=2.0) const;
     Real operator()(Real t, Real s) const;
-    
+
 #if defined(SWIGPYTHON)
     %extend {
         RichardsonExtrapolation(
             PyObject* fct, Real delta_h, Real n = Null<Real>()) {
-        
+
             UnaryFunction f(fct);
-            return new RichardsonExtrapolation(f, delta_h, n); 
+            return new RichardsonExtrapolation(f, delta_h, n);
         }
     }
 #elif defined(SWIGJAVA) || defined(SWIGCSHARP)
     %extend {
         RichardsonExtrapolation(
             UnaryFunctionDelegate* fct, Real delta_h, Real n = Null<Real>()) {
-        
+
             UnaryFunction f(fct);
-            return new RichardsonExtrapolation(f, delta_h, n); 
+            return new RichardsonExtrapolation(f, delta_h, n);
         }
     }
 #else

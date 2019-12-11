@@ -1219,9 +1219,9 @@ class FdHestonVanillaEngine : public PricingEngine {
     FdHestonVanillaEngine(
         const boost::shared_ptr<HestonModel>& model,
         const boost::shared_ptr<FdmQuantoHelper>& quantoHelper,
-        Size tGrid = 100, 
+        Size tGrid = 100,
         Size xGrid = 100,
-        Size vGrid = 50, 
+        Size vGrid = 50,
         Size dampingSteps = 0,
         const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Hundsdorfer(),
         const boost::shared_ptr<LocalVolTermStructure>& leverageFct
@@ -1839,10 +1839,25 @@ class DeltaVolQuote : public Quote {
                   DeltaVolQuote::DeltaType deltaType,
                   Time maturity,
                   DeltaVolQuote::AtmType atmType);
+
+    Real value() const;
+    Real delta() const;
+    Time maturity() const;
+    AtmType atmType()   const;
+    DeltaType deltaType() const;
 };
 
 %template(DeltaVolQuoteHandle) Handle<DeltaVolQuote>;
 %template(RelinkableDeltaVolQuoteHandle) RelinkableHandle<DeltaVolQuote>;
+
+namespace std {
+    %template(DeltaVolQuoteVector) vector<boost::shared_ptr<DeltaVolQuote> >;
+    %template(DeltaVolQuoteHandleVector) vector<Handle<DeltaVolQuote> >;
+    %template(DeltaVolQuoteVectorVector)
+                        vector<vector<boost::shared_ptr<DeltaVolQuote> > >;
+    %template(DeltaVolQuoteHandleVectorVector)
+                                   vector<vector<Handle<DeltaVolQuote> > >;
+}
 
 #if defined(SWIGPYTHON)
 %feature("docstring") VannaVolgaDoubleBarrierEngine "
