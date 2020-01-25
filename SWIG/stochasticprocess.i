@@ -227,10 +227,15 @@ class HestonProcess : public StochasticProcess {
 					   const Handle<Quote>& s0,
 					   Real v0, Real kappa,
                        Real theta, Real sigma, Real rho);
-                       
+
       Handle<Quote> s0();
       Handle<YieldTermStructure> dividendYield();
       Handle<YieldTermStructure> riskFreeRate();
+      Real v0() const;
+      Real rho() const;
+      Real kappa() const;
+      Real theta() const;
+      Real sigma() const;
 };
 
 %{
@@ -336,27 +341,27 @@ class ExtendedOrnsteinUhlenbeckProcess : public StochasticProcess1D {
                                 const boost::function<Real (Real)>& b,
                                 Discretization discretization = MidPoint,
                                 Real intEps = 1e-4);
-    %extend{                            
-        #if defined(SWIGPYTHON)    
+    %extend{
+        #if defined(SWIGPYTHON)
         ExtendedOrnsteinUhlenbeckProcess(
-            Real speed, Volatility sigma, Real x0, 
-            PyObject* function, 
+            Real speed, Volatility sigma, Real x0,
+            PyObject* function,
             Real intEps = 1e-4) {
-            
+
             const UnaryFunction f(function);
             return new ExtendedOrnsteinUhlenbeckProcess(
-            	    speed, sigma, x0, f, 
+            	    speed, sigma, x0, f,
             	    ExtendedOrnsteinUhlenbeckProcess::MidPoint, intEps);
         }
         #elif defined(SWIGJAVA) || defined(SWIGCSHARP)
         ExtendedOrnsteinUhlenbeckProcess(
-            Real speed, Volatility sigma, Real x0, 
+            Real speed, Volatility sigma, Real x0,
             UnaryFunctionDelegate* function,
             Real intEps = 1e-4) {
-            
+
             const UnaryFunction f(function);
             return new ExtendedOrnsteinUhlenbeckProcess(
-            	    speed, sigma, x0, f, 
+            	    speed, sigma, x0, f,
             	    ExtendedOrnsteinUhlenbeckProcess::MidPoint, intEps);
         }
 		#endif
@@ -369,7 +374,7 @@ class ExtOUWithJumpsProcess : public StochasticProcess {
         ExtOUWithJumpsProcess(
             const boost::shared_ptr<ExtendedOrnsteinUhlenbeckProcess>& process,
             Real Y0, Real beta, Real jumpIntensity, Real eta) {
-                        
+
 			return new ExtOUWithJumpsProcess(
 				new ExtOUWithJumpsProcess(
 					process, Y0, beta, jumpIntensity, eta));
@@ -383,7 +388,7 @@ class KlugeExtOUProcess : public StochasticProcess {
             Real rho,
             const boost::shared_ptr<ExtOUWithJumpsProcess>& kluge,
             const boost::shared_ptr<ExtendedOrnsteinUhlenbeckProcess>& extOU) {
-	                            	
+
             return new KlugeExtOUProcess(new KlugeExtOUProcess(
             	rho, kluge, extOU));
         }

@@ -276,6 +276,7 @@ class HestonModel : public CalibratedModel {
     Real sigma() const;
     Real rho() const;
     Real v0() const;
+    boost::shared_ptr<HestonProcess> process() const;
 };
 
 %template(HestonModelHandle) Handle<HestonModel>;

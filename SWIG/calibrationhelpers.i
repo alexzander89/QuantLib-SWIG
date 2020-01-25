@@ -60,7 +60,7 @@ class BlackCalibrationHelper : public CalibrationHelperBase {
     #endif
   public:
     enum CalibrationErrorType { RelativePriceError, PriceError, ImpliedVolError };
-                       
+
     void setPricingEngine(const boost::shared_ptr<PricingEngine>& engine);
     Real marketValue() const;
     virtual Real modelValue() const;
@@ -101,7 +101,7 @@ class SwaptionHelper : public BlackCalibrationHelper {
                       const Real nominal = 1.0,
                       const VolatilityType type = ShiftedLognormal,
                       const Real shift = 0.0);
-    
+
     SwaptionHelper(const Date& exerciseDate, const Period& length,
                       const Handle<Quote>& volatility,
                       const boost::shared_ptr<IborIndex>& index,
@@ -115,7 +115,7 @@ class SwaptionHelper : public BlackCalibrationHelper {
                       const Real nominal = 1.0,
                       const VolatilityType type = ShiftedLognormal,
                       const Real shift = 0.0);
-    
+
     SwaptionHelper(const Date& exerciseDate, const Date& endDate,
                       const Handle<Quote>& volatility,
                       const boost::shared_ptr<IborIndex>& index,
@@ -132,7 +132,7 @@ class SwaptionHelper : public BlackCalibrationHelper {
 
     boost::shared_ptr<VanillaSwap> underlyingSwap() const;
     boost::shared_ptr<Swaption> swaption() const;
-                      
+
     %extend {
         std::vector<Time> times() {
             std::list<Time> l;
@@ -168,7 +168,7 @@ class CapHelper : public BlackCalibrationHelper {
                  const Handle<YieldTermStructure>& termStructure,
                  BlackCalibrationHelper::CalibrationErrorType errorType
                                 = BlackCalibrationHelper::RelativePriceError);
-    %extend {        
+    %extend {
         std::vector<Time> times() {
             std::list<Time> l;
             self->addTimesTo(l);
@@ -191,6 +191,15 @@ class HestonModelHelper : public BlackCalibrationHelper {
                       const Handle<YieldTermStructure>& dividendYield,
                       BlackCalibrationHelper::CalibrationErrorType errorType
                           = BlackCalibrationHelper::RelativePriceError);
+
+    HestonModelHelper(const Date& exerciseDate,
+                      const Real s0,
+                      const Real strikePrice,
+                      const Handle<Quote>& volatility,
+                      const Handle<YieldTermStructure>& riskFreeRate,
+                      const Handle<YieldTermStructure>& dividendYield,
+                      BlackCalibrationHelper::CalibrationErrorType errorType
+                          = BlackCalibrationHelper::RelativePriceError);
 };
 
 // allow use of vectors of helpers
@@ -202,7 +211,7 @@ namespace std {
     %template(CalibrationHelperVector)
         vector<boost::shared_ptr<CalibrationHelperBase> >;
     %template(BlackCalibrationHelperVector)
-        vector<boost::shared_ptr<BlackCalibrationHelper> >;        
+        vector<boost::shared_ptr<BlackCalibrationHelper> >;
 }
 
 // the base class for calibrated models
@@ -226,7 +235,7 @@ class CalibratedModel : public virtual Observable {
         const Constraint& constraint = Constraint(),
         const std::vector<Real>& weights = std::vector<Real>(),
         const std::vector<bool>& fixParameters = std::vector<bool>());
-     
+
     void setParams(const Array& params);
     Real value(const Array& params,
                const std::vector<boost::shared_ptr<CalibrationHelperBase> >&);

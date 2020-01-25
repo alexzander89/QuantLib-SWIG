@@ -60,7 +60,7 @@ class MTBrownianGeneratorFactory : public BrownianGeneratorFactory {
 class SobolBrownianGenerator {
   public:
     enum Ordering { Factors, Steps, Diagonal };
-  private: 
+  private:
     SobolBrownianGenerator();
 };
 
@@ -120,7 +120,7 @@ class HestonSLVFokkerPlanckFdmParams {
   public:
     %extend {
         HestonSLVFokkerPlanckFdmParams(
-            Size xGrid, Size vGrid, 
+            Size xGrid, Size vGrid,
             Size tMaxStepsPerYear, Size tMinStepsPerYear,
             Real tStepNumberDecay,
             Size nRannacherTimeSteps,
@@ -133,7 +133,7 @@ class HestonSLVFokkerPlanckFdmParams {
             FdmHestonGreensFct::Algorithm greensAlgorithm,
             FdmSquareRootFwdOp::TransformationType trafoType,
             FdmSchemeDesc schemeDesc) {
-            
+
                 const HestonSLVFokkerPlanckFdmParams params = {
                     xGrid, vGrid,
                     tMaxStepsPerYear, tMinStepsPerYear,
@@ -204,6 +204,23 @@ class FdHestonDoubleBarrierEngine : public PricingEngine {
             const boost::shared_ptr<LocalVolTermStructure>& leverageFct
                 = boost::shared_ptr<LocalVolTermStructure>());
 };
+
+%{
+using QuantLib::ImpliedVolatilityHelper;
+%}
+
+class ImpliedVolatilityHelper {
+  public:
+    Volatility calculate(const Instrument& instrument,
+                         const PricingEngine& engine,
+                         SimpleQuote& volQuote,
+                         Real targetValue,
+                         Real accuracy = 1.0e-4,
+                         Natural maxEvaluations = 100,
+                         Volatility minVol = 1.0e-7,
+                         Volatility maxVol = 4.0);
+};
+
 
 
 #endif

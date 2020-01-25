@@ -293,6 +293,7 @@ class LocalConstantVol : public LocalVolTermStructure {
 // local vol surface
 %{
 using QuantLib::LocalVolSurface;
+using QuantLib::FixedLocalVolSurfaceAdapter;
 %}
 
 %shared_ptr(LocalVolSurface);
@@ -306,6 +307,15 @@ class LocalVolSurface : public LocalVolTermStructure {
                     const Handle<YieldTermStructure>& riskFreeTS,
                     const Handle<YieldTermStructure>& dividendTS,
                     Real underlying);
+};
+
+%shared_ptr(FixedLocalVolSurfaceAdapter);
+class FixedLocalVolSurfaceAdapter : public LocalVolTermStructure {
+  public:
+    FixedLocalVolSurfaceAdapter(
+            const boost::shared_ptr<LocalVolSurface>& localVol,
+            Size tGrid = 100,
+            Size xGrid = 100);
 };
 
 %{
@@ -330,9 +340,9 @@ class SviFxBlackVolatilitySurface: public BlackVolTermStructure {
 
     std::vector<Date> optionDates() const;
     std::vector<Period> optionTenors() const;
+    std::vector<Time> optionTimes() const;
+    Rate forwardValue(Time t) const;
     std::vector<std::vector<Handle<QuantLib::DeltaVolQuote> > > deltaVolMatrix() const;
-    DiscountFactor foreignDiscount(Time t) const;
-    DiscountFactor domesticDiscount(Time t) const;
 };
 
 // constant caplet constant term structure
