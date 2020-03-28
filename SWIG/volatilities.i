@@ -343,6 +343,7 @@ class SviFxBlackVolatilitySurface: public BlackVolTermStructure {
     std::vector<Time> optionTimes() const;
     Rate forwardValue(Time t) const;
     std::vector<std::vector<Handle<QuantLib::DeltaVolQuote> > > deltaVolMatrix() const;
+    boost::shared_ptr<BlackVarianceCurve> atmVolCurve() const;
 };
 
 // constant caplet constant term structure

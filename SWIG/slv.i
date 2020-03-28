@@ -206,21 +206,19 @@ class FdHestonDoubleBarrierEngine : public PricingEngine {
 };
 
 %{
-using QuantLib::ImpliedVolatilityHelper;
+using QuantLib::HestonRNDCalculator;
 %}
 
-class ImpliedVolatilityHelper {
+class HestonRNDCalculator {
   public:
-    Volatility calculate(const Instrument& instrument,
-                         const PricingEngine& engine,
-                         SimpleQuote& volQuote,
-                         Real targetValue,
-                         Real accuracy = 1.0e-4,
-                         Natural maxEvaluations = 100,
-                         Volatility minVol = 1.0e-7,
-                         Volatility maxVol = 4.0);
+    HestonRNDCalculator(
+            const boost::shared_ptr<HestonProcess>& hestonProcess,
+            Real integrationEps= 1e-6,
+            Size maxIntegrationIterations = 10000ul);
+
+    Real pdf(Real x, Time t) const;
+    Real cdf(Real x, Time t) const;
+    Real invcdf(Real q, Time t) const;
 };
-
-
 
 #endif
